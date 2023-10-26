@@ -1,0 +1,106 @@
+---
+title: "Writing Functions"
+output: github_document
+---
+
+```{r, include = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+Load key packages.
+
+```{r}
+library(tidyverse)
+library(rvest)
+```
+
+
+Set seed for reproducibility.
+
+```{r}
+set.seed(12345)
+```
+
+### Z score function
+
+Z scores subtract the mean and divide by the sd. 
+
+```{r}
+x_vec = rnorm(20, mean = 5, sd = .3)
+```
+
+Compute Z scores for `x_vec`.
+
+```{r}
+(x_vec - mean(x_vec)) / sd(x_vec)
+```
+
+
+Write a function to do this!
+
+```{r}
+z_score = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("Argument should be numbers")
+  } else if (length(x) < 2) {
+    stop("You need at least 2 numbers to get z scores")
+  }
+  
+  z = (x - mean(x)) / sd(x)
+  
+  z
+  
+}
+```
+
+Check that this works.
+
+```{r}
+z_score(x = x_vec)
+
+z_score(x = rnorm(10, mean = 5))
+```
+
+
+Keep checking.
+
+```{r, error = TRUE}
+z_score(x = 3)
+
+z_score(c("my", "name", "is", "jeff"))
+
+z_score(c(TRUE, TRUE, FALSE, TRUE))
+
+z_score(iris)
+```
+
+
+
+
+
+
+
+
+
+
+
+
