@@ -114,5 +114,89 @@ sim_result_df |>
 
 
 
+## SLR
+
+Goal is to write a function that simulates data and then fits a regression; then repeat to look at the distribution of estimated coefficients. 
+
+```{r}
+beta_0 = 2
+beta_1 = 3
+
+sim_data = 
+  tibble(
+    x = rnorm(n = 30, mean = 1, sd = 1), 
+    y = beta_0 + beta_1 * x + rnorm(30, mean = 0, sd = 1)
+  )
+
+ls_fit = lm(y ~ x, data = sim_data)
+ls_fit
+
+sim_data |> 
+  ggplot(aes(x = x, y = y )) + 
+  geom_point()
+```
+
+
+let's wrap this in a function
+
+```{r}
+sim_slr = function(n_obs, beta_0 = 2, beta_1 = 3) {
+  
+  sim_data = 
+    tibble(
+      x = rnorm(n = n_obs, mean = 1, sd = 1), 
+      y = beta_0 + beta_1 * x + rnorm(n_obs, mean = 0, sd = 1)
+    )
+  
+  ls_fit = lm(y ~ x, data = sim_data)
+  
+  tibble(
+    beta0_hat = coef(ls_fit)[1],
+    beta1_hat = coef(ls_fit)[2]
+  )
+  
+}
+
+
+sim_slr(n_obs = 30)
+
+```
+
+
+run this a whole bunch of times
+
+```{r}
+sim_results_df = 
+  expand_grid(
+    sample_size = 30,
+    iter = 1:1000
+  ) |> 
+  mutate(estimate_df = map(sample_size, sim_slr)) |> 
+  unnest(estimate_df)
+```
+
+Let's look at results.
+
+
+```{r}
+sim_results_df |> 
+  summarize(
+    mean_b0_hat = mean(beta0_hat),
+    mean_b1_hat = mean(beta1_hat)
+  )
+
+sim_results_df |> 
+  ggplot(aes(x = beta0_hat)) + 
+  geom_histogram()
+
+sim_results_df |> 
+  ggplot(aes(x = beta0_hat, y = beta1_hat)) + 
+  geom_point()
+
+```
+
+
+
+
 
 
