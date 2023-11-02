@@ -1,0 +1,118 @@
+---
+title: "Simulations"
+output: github_document
+---
+
+```{r, include = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+Load key packages.
+
+```{r}
+library(tidyverse)
+```
+
+
+Set seed for reproducibility.
+
+```{r}
+set.seed(12345)
+```
+
+
+
+## Simulate sample mean and sd
+
+Here's an old function:
+
+```{r}
+sim_mean_sd = function(n_obs, mu = 5, sigma = 1) {
+  
+  x_vec = rnorm(n = n_obs, mean = mu, sd = sigma)
+
+  tibble(
+    mean = mean(x_vec),
+    sd = sd(x_vec)
+  )
+  
+}
+
+```
+
+Let's see what this does.
+
+```{r}
+sim_mean_sd(n_obs = 30)
+```
+
+
+Let's iterate to see how this works UNDER REPEATED SAMPLING!!!
+
+```{r}
+output = vector("list", length = 100)
+
+for (i in 1:100) {
+  
+  output[[i]] = sim_mean_sd(n_obs = 30)
+  
+}
+
+sim_results = 
+  bind_rows(output)
+
+sim_results |> 
+  ggplot(aes(x = mean)) + geom_density()
+
+sim_results |> 
+  summarize(
+    mu_hat = mean(mean), 
+    sd_hat = sd(mean)
+  )
+```
+
+
+use a map function
+
+
+```{r}
+sim_result_df =
+  expand_grid(
+    sample_size = c(30, 60, 120, 240),
+    iter = 1:1000
+  ) |> 
+  mutate(estimate_df = map(sample_size, sim_mean_sd)) |> 
+  unnest(estimate_df)
+
+sim_result_df |> 
+  mutate(
+    sample_size = str_c("n = ", sample_size),
+    sample_size = fct_inorder(sample_size)
+  ) |> 
+  ggplot(aes(x = sample_size, y = mean)) + 
+  geom_boxplot()
+
+```
+
+
+
+
+
