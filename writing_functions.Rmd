@@ -29,6 +29,7 @@ Load key packages.
 
 ```{r}
 library(tidyverse)
+library(readxl)
 library(rvest)
 ```
 
@@ -73,6 +74,170 @@ z_scores(x = c("my", "name", "is", "jeff"))
 
 z_scores(x = x_vec)
 ```
+
+
+
+## A new function!
+
+```{r}
+mean_and_sd = function(x) {
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  
+  out_df = 
+    tibble(
+      mean = mean_x,
+      sd = sd_x
+    )
+  
+  return(out_df)
+  
+}
+
+mean_and_sd(x_vec)
+```
+
+## Check stuff using a simulation
+
+```{r}
+sim_df = 
+  tibble(
+    x = rnorm(30, 10, 5)
+  )
+
+sim_df |> 
+  summarize(
+    mean = mean(x),
+    sd = sd(x)
+  )
+```
+
+Simulation function to check sample mean and sd.
+
+```{r}
+sim_mean_sd = function(samp_size = 30, true_mean = 10, true_sd = 5) {
+  
+  sim_df = 
+    tibble(
+      x = rnorm(samp_size, true_mean, true_sd)
+    )
+
+  out_df = 
+    sim_df |> 
+    summarize(
+      mean = mean(x),
+      sd = sd(x)
+    )
+  
+  return(out_df)
+}
+
+sim_mean_sd(samp_size = 30, true_mean = 4, true_sd = 12)
+sim_mean_sd(true_mean = 4, true_sd = 12, samp_size = 30)
+
+sim_mean_sd(30, 16, 2)
+
+sim_mean_sd(samp_size = 43)
+```
+
+
+
+## Revisit LoTR words
+
+```{r}
+fellowship_df = 
+  read_excel("data/LotR_Words.xlsx", range = "B3:D6") |> 
+  mutate(movie = "fellowship") |> 
+  janitor::clean_names()
+
+two_towers_df = 
+  read_excel("data/LotR_Words.xlsx", range = "F3:H6") |> 
+  mutate(movie = "two_towers") |> 
+  janitor::clean_names()
+
+return_king_df = 
+  read_excel("data/LotR_Words.xlsx", range = "J3:L6") |> 
+  mutate(movie = "return_king") |> 
+  janitor::clean_names()
+
+
+```
+
+Let's do this using a function instead.
+
+
+```{r}
+lotr_import = function(cell_range, movie_title) {
+  
+  movie_df = 
+    read_excel("data/LotR_Words.xlsx", range = cell_range) |> 
+    mutate(movie = movie_title) |> 
+    janitor::clean_names() |> 
+    pivot_longer(
+      female:male,
+      names_to = "sex",
+      values_to = "words"
+    ) |> 
+    select(movie, everything())
+  
+  return(movie_df)
+  
+}
+
+lotr_df = 
+  bind_rows(
+    lotr_import("B3:D6", "fellowship"),
+    lotr_import("F3:H6", "two_towers"),
+    lotr_import("J3:L6", "return_king")
+  )
+```
+
+
+## NSDUH
+
+don't do this:
+```{r}
+nsduh_url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+nsduh_html = read_html(nsduh_url)
+
+marj_table = 
+  nsduh_html |> 
+  html_table() |> 
+  nth(1) |> 
+  slice(-1) |> 
+  mutate(drug = "marj")
+
+cocaine_table = 
+  nsduh_html |> 
+  html_table() |> 
+  nth(4) |> 
+  slice(-1) |> 
+  mutate(drug = "cocaine")
+
+heroin_table = 
+  nsduh_html |> 
+  html_table() |> 
+  nth(5) |> 
+  slice(-1) |> 
+  mutate(drug = "heroin")
+
+```
+
+do this instead:
+
+```{r}
+source("source/nsduh_table_format.R")
+
+bind_rows(
+  nsduh_table_format(html = nsduh_html, 1, "marj"),
+  nsduh_table_format(html = nsduh_html, 4, "cocaine"),
+  nsduh_table_format(html = nsduh_html, 5, "heroin")
+)
+```
+
+
 
 
 
