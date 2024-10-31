@@ -294,6 +294,31 @@ lm(tmax ~ tmin, data = weather_nest[["data"]][[2]])
 lm(tmax ~ tmin, data = weather_nest[["data"]][[3]])
 ```
 
+
+Let's define a function that fits the regression I want.
+
+```{r}
+weather_lm = function(df) {
+  
+  lm(tmax~tmin, data = df)
+  
+}
+```
+
+I could run the models using the short function
+
+```{r}
+weather_lm(weather_nest[["data"]][[1]])
+```
+
+```{r}
+weather_nest |> 
+  mutate(model_fit = map(data, weather_lm))
+```
+
+
+
+
 ```{r}
 weather_nest |> 
   mutate(model_fit = map(data, \(x) lm(tmax ~ tmin, data = x))) 
