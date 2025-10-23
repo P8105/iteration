@@ -32,3 +32,285 @@ library(tidyverse)
 library(readxl)
 library(rvest)
 ```
+
+
+## Start small!
+
+Everyone loves z scores.
+
+```{r}
+x_vec = rnorm(20, mean = 10, sd = 3.5)
+
+(x_vec - mean(x_vec)) / sd(x_vec)
+```
+
+Write a function to compute z scores.
+
+```{r}
+z_scores = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("The input x should be numeric")
+  }
+  
+  if (length(x) < 5) {
+    stop("Only compute z scores when the input has 5 or more numbers")
+  }
+  
+  z = (x - mean(x)) / sd(x)
+  
+  z
+  
+}
+```
+
+Let's try our function ...
+
+```{r}
+z_scores(x = x_vec)
+
+num_vec = rnorm(123, mean = 14, sd = 0.4)
+
+z_scores(x = num_vec)
+
+```
+
+
+Let's break our function ...
+
+```{r, error = TRUE}
+z_scores(3)
+z_scores("my name is jeff")
+```
+
+
+## Let's compute some stuff
+
+Let's compute and return the mean and sd of a numeric vector.
+
+
+
+```{r}
+mean_and_sd = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("The input x should be numeric")
+  }
+  
+  if (length(x) < 5) {
+    stop("Only compute mean and sd when the input has 5 or more numbers")
+  }
+  
+  mean_x = mean(x, na.rm = TRUE)
+  sd_x = sd(x, na.rm = TRUE)
+  
+  tibble(
+    mean = mean_x, 
+    sd = sd_x
+  )
+  
+}
+
+mean_and_sd(x_vec)
+```
+
+## Make up data ..
+
+Let's *simulate* some data
+
+```{r}
+sim_df = 
+  tibble(
+    x = rnorm(n = 30, mean = 3, sd = 2)
+  )
+
+sim_df |> 
+  summarize(
+    mu_hat = mean(x),
+    sigma_hat = sd(x)
+  )
+```
+
+
+Write a function to do simulations.
+The inputs are
+
+* `n_subj` is number of subjects
+* `mu` is the true mean
+* `sigma` is the true sd
+
+Function simulates data from a normal and computes sample mean and sd. 
+
+```{r}
+sim_mean_sd = function(n_subj, mu = 3, sigma = 2) {
+  
+  sim_df = 
+    tibble(
+      x = rnorm(n = n_subj, mean = mu, sd = sigma)
+    )
+  
+  sim_df |> 
+    summarize(
+      mu_hat = mean(x),
+      sigma_hat = sd(x)
+    )
+  
+}
+```
+
+Let's run this function.
+
+```{r}
+sim_mean_sd(mu = 48, 50)
+```
+
+
+Import the LoTR data
+
+```{r}
+fellowship_ring = 
+  read_excel("data/LotR_Words.xlsx", range = "B3:D6") |> 
+  mutate(movie = "Fellowship of the Ring")
+
+two_towers = 
+  read_excel("data/LotR_Words.xlsx", range = "F3:H6") |> 
+  mutate(movie = "Two Towers")
+
+return_of_the_king = 
+  read_excel("data/LotR_Words.xlsx", range = "J3:L6") |> 
+  mutate(movie = "Return of the King")
+
+lotr_df = 
+  bind_rows(fellowship_ring, two_towers, return_of_the_king)
+
+
+```
+
+
+Turn this into a function
+
+```{r}
+lotr_import = function(cell_range, movie_title) {
+  
+  df = 
+    read_excel("data/LotR_Words.xlsx", range = cell_range) |> 
+    mutate(movie = movie_title)
+  
+  df
+  
+}
+
+fellowship = lotr_import(cell_range = "B3:D6", movie_title = "Fellowship")
+two_towers = lotr_import(cell_range = "F3:H6", movie_title = "Two Towers")
+return =     lotr_import(cell_range = "J3:L6", movie_title = "Return")
+
+bind_rows(fellowship, two_towers, return)
+```
+
+
+Look at one more example. 
+
+```{r}
+nsduh_url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+nsduh_html = read_html(nsduh_url)
+
+data_marj_year = 
+  nsduh_html |> 
+  html_table() |> 
+  nth(1) |>
+  slice(-1) |> 
+  select(-contains("P Value")) |>
+  pivot_longer(
+    -State,
+    names_to = "age_year", 
+    values_to = "percent") |>
+  separate(age_year, into = c("age", "year"), sep = "\\(") |>
+  mutate(
+    year = str_replace(year, "\\)", ""),
+    percent = str_replace(percent, "[a-c]$", ""),
+    percent = as.numeric(percent)) |>
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+
+data_marj_month = 
+  nsduh_html |> 
+  html_table() |> 
+  nth(2) |>
+  slice(-1) |> 
+  select(-contains("P Value")) |>
+  pivot_longer(
+    -State,
+    names_to = "age_year", 
+    values_to = "percent") |>
+  separate(age_year, into = c("age", "year"), sep = "\\(") |>
+  mutate(
+    year = str_replace(year, "\\)", ""),
+    percent = str_replace(percent, "[a-c]$", ""),
+    percent = as.numeric(percent)) |>
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+
+data_marj_first = 
+  nsduh_html |> 
+  html_table() |> 
+  nth(3) |>
+  slice(-1) |> 
+  select(-contains("P Value")) |>
+  pivot_longer(
+    -State,
+    names_to = "age_year", 
+    values_to = "percent") |>
+  separate(age_year, into = c("age", "year"), sep = "\\(") |>
+  mutate(
+    year = str_replace(year, "\\)", ""),
+    percent = str_replace(percent, "[a-c]$", ""),
+    percent = as.numeric(percent)) |>
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+```
+
+
+write an import function
+
+```{r}
+nsduh_import = function(html, table_num) {
+  
+  data = 
+    html |> 
+    html_table() |> 
+    nth(table_num) |>
+    slice(-1) |> 
+    select(-contains("P Value")) |>
+    pivot_longer(
+      -State,
+      names_to = "age_year", 
+      values_to = "percent") |>
+    separate(age_year, into = c("age", "year"), sep = "\\(") |>
+    mutate(
+      year = str_replace(year, "\\)", ""),
+      percent = str_replace(percent, "[a-c]$", ""),
+      percent = as.numeric(percent)) |>
+    filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+  
+  data
+  
+}
+
+nsduh_import(nsduh_html, table_num = 1)
+nsduh_import(nsduh_html, table_num = 2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+don't forget documentation 
+
+
