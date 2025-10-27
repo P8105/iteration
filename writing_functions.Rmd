@@ -88,29 +88,20 @@ z_scores("my name is jeff")
 
 Let's compute and return the mean and sd of a numeric vector.
 
+I've written that function and saved it to `source/mean_and_sd.R`, along with some documentation. For completeness, I'm printing that R script below.
+
+```{r, echo = FALSE}
+cat(htmltools::includeText("source/mean_and_sd.R"))
+```
+
+This will import the function for use here.
+
+```{r}
+source("source/mean_and_sd.R")
+```
 
 
 ```{r}
-mean_and_sd = function(x) {
-  
-  if (!is.numeric(x)) {
-    stop("The input x should be numeric")
-  }
-  
-  if (length(x) < 5) {
-    stop("Only compute mean and sd when the input has 5 or more numbers")
-  }
-  
-  mean_x = mean(x, na.rm = TRUE)
-  sd_x = sd(x, na.rm = TRUE)
-  
-  tibble(
-    mean = mean_x, 
-    sd = sd_x
-  )
-  
-}
-
 mean_and_sd(x_vec)
 ```
 
