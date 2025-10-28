@@ -287,21 +287,9 @@ nsduh_import = function(html, table_num) {
 
 nsduh_import(nsduh_html, table_num = 1)
 nsduh_import(nsduh_html, table_num = 2)
+nsduh_import(nsduh_html, table_num = 3)
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-don't forget documentation 
 
 

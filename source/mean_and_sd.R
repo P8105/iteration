@@ -1,13 +1,10 @@
-#' mean_and_asd
+#' mean_and_sd
 #' 
-#' Takes a numeric input vector and computes the mean and stnadard deviation
+#' Takes a numeric input vector and computes the mean and standard deviation
 #'
 #' @param x the input vector (must be numeric with 5 or more elements)
 #'
 #' @returns a dataframe containing the mean and sd of x
-#' @export
-#'
-#' @examples
 #' 
 mean_and_sd = function(x) {
   
