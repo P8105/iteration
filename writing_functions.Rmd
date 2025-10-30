@@ -132,27 +132,20 @@ The inputs are
 
 Function simulates data from a normal and computes sample mean and sd. 
 
+(We wrote this in a code chunk last time; now it's being sourced.)
+
 ```{r}
-sim_mean_sd = function(n_subj, mu = 3, sigma = 2) {
-  
-  sim_df = 
-    tibble(
-      x = rnorm(n = n_subj, mean = mu, sd = sigma)
-    )
-  
-  sim_df |> 
-    summarize(
-      mu_hat = mean(x),
-      sigma_hat = sd(x)
-    )
-  
-}
+source("source/sim_mean_sd.R")
 ```
 
 Let's run this function.
 
 ```{r}
 sim_mean_sd(mu = 48, 50)
+```
+
+```{r}
+sim_mean_sd(n_subj = 30)
 ```
 
 
