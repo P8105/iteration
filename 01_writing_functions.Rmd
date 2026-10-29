@@ -23,5 +23,60 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(readxl)
+```
+
+
 ## Functions!
+
+Start small with Z scores.
+
+```{r}
+x_vec = rnorm(n = 40, mean = 12, sd = 63)
+
+(x_vec - mean(x_vec)) / sd(x_vec)
+```
+
+Let's turn this into a function
+
+```{r}
+z_scores = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("Input x must be numeric")
+  } else if (length(x) < 5) {
+    stop("x should have 5 or more numbers")
+  }
+  
+  z = (x - mean(x)) / sd(x)
+  
+  return(z)
+  
+}
+```
+
+Does this actually work???
+
+```{r}
+z_scores(x_vec)
+z_scores(rpois(4000, lambda = 12))
+```
+
+Don't run these on knitting
+
+```{r eval = FALSE}
+z_scores(iris)
+z_scores("my name is jeff")
+z_scores(c(TRUE, TRUE, FALSE, FALSE))
+z_scores(3)
+```
+
+
+
+
+
 
