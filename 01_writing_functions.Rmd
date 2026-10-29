@@ -77,6 +77,46 @@ z_scores(3)
 
 
 
+## Mean and sd
+
+```{r}
+mean(x_vec)
+sd(x_vec)
+```
+
+Write a function that returns the mean and sd of an input vector.
+
+```{r}
+source("source/mean_and_sd.R")
+```
+
+Check that this works!
+
+```{r}
+mean_and_sd(x_vec)
+```
+
+## Motivate and write another one!!
+
+
+```{r}
+source("source/sim_mean_sd.R")
+```
+
+```{r}
+sim_mean_sd(n_obs = 50, mu = 150, sigma = 30)
+
+sim_mean_sd(50, 12, 3)
+
+sim_mean_sd(150, n_obs = 50, 30)
+
+mean(x_vec)
+
+
+sim_mean_sd(50)
+```
+
+
 
 
 
