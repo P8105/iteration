@@ -116,6 +116,46 @@ mean(x_vec)
 sim_mean_sd(50)
 ```
 
+## Fix things that bother me
+
+This bothered me:
+
+```{r}
+source("source/lotr_import.R")
+
+fellowship_df = 
+  lotr_import(cell_range = "B3:D6", movie_title = "fellowship")
+  
+two_tower_df = 
+  lotr_import(cell_range = "F3:H6", movie_title = "two_towers")
+
+return_df = 
+  lotr_import(cell_range = "J3:L6", movie_title = "return_of_king")
+```
+
+
+And now it's fixed!
+
+
+```{r}
+source("source/nsduh_process.R")
+
+url = "https://www.samhsa.gov/data/sites/default/files/NSDUHsaeShortTermCHG2015/NSDUHsaeShortTermCHG2015.htm"
+drug_use_html = read_html(url)
+
+marj_df = 
+  nsduh_process(html = drug_use_html, table_num = 1)
+
+cocaine_df = 
+  nsduh_process(html = drug_use_html, table_num = 4)
+
+heroin_df = 
+  nsduh_process(html = drug_use_html, table_num = 5)
+
+
+```
+
+
 
 
 
