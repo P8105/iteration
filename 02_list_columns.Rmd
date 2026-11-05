@@ -109,5 +109,162 @@ output = map_df(list_norm, mean_and_sd)
 output = map_dbl(list_norm, median)
 ```
 
+## List columns
+
+Time to make some list columns!!!!!!!!!!
+
+```{r}
+listcol_df = 
+  tibble(
+    name = c("a", "b", "c", "d"),
+    samp = list_norm
+  )
+
+listcol_df
+```
+
+do stuff with this
+
+```{r}
+listcol_df |> 
+  filter(name %in% c("a", "c", "d"))
+
+listcol_df |> 
+  pull(samp)
+```
+
+what about mean and sd
+
+```{r}
+mean_and_sd( pull(listcol_df, samp)[[1]] )
+```
+
+
+could I iterate??
+
+```{r}
+map(pull(listcol_df, samp), mean_and_sd)
+```
+
+this is where it gets really coooooool
+
+
+```{r}
+listcol_df |> 
+  mutate(
+    output = map(samp, mean_and_sd)
+  )
+
+listcol_df |> 
+  mutate(
+    output = map_df(samp, mean_and_sd)
+  )
+
+listcol_df |> 
+  mutate(
+    output = map_dbl(samp, median)
+  )
+```
+
+
+## ANOTHER EXAMPLE
+
+
+NSDUH import etc
+
+
+```{r}
+nsduh_url = "https://www.samhsa.gov/data/sites/default/files/NSDUHsaeShortTermCHG2015/NSDUHsaeShortTermCHG2015.htm"
+
+nsduh_html = read_html(nsduh_url)
+
+nsduh_process(html = nsduh_html, table_num = 1)
+nsduh_process(html = nsduh_html, table_num = 4)
+nsduh_process(html = nsduh_html, table_num = 5)
+```
+
+import using iteration
+
+```{r}
+output = vector("list", length = 3)
+
+table_nums = c(1, 4, 5)
+
+for (i in 1:3) {
+  
+  output[[i]] = nsduh_process(html = nsduh_html, table_num = table_nums[i])
+  
+}
+
+output
+```
+
+
+let's build up a map example
+
+```{r}
+output = map(table_nums, nsduh_process, html = nsduh_html)
+```
+
+let's try list columns!!!!!!!!!!
+
+
+```{r}
+nsduh_df = 
+  tibble(
+    drug = c("marj", "cocaine", "heroin"), 
+    num = c(1, 4, 5)
+  ) |> 
+  mutate(
+    table = map(num, nsduh_process, html = nsduh_html)
+  ) |> 
+  select(-num) |> 
+  unnest(table)
+
+nsduh_df |> 
+  filter(age == "12-17") |> 
+  mutate(State = fct_reorder(State, percent)) |> 
+  ggplot(aes(x = State, y = percent, color = year)) +
+  geom_point() +
+  facet_grid(. ~ drug)
+```
+
+
+## Weather again??
+
+```{r}
+data("weather_df")
+
+weather_df = 
+  weather_df |> 
+  nest(data = date:tmin)
+```
+
+what if i want to do a regression of tmax on tmin for each station?
+
+```{r}
+lm(tmax ~ tmin, data = pull(weather_df, data)[[1]])
+lm(tmax ~ tmin, data = pull(weather_df, data)[[2]])
+lm(tmax ~ tmin, data = pull(weather_df, data)[[3]])
+
+
+
+weather_lm = function (input_data) {
+  
+  lm(tmax ~ tmin, data = input_data)
+  
+}
+
+weather_lm(pull(weather_df, data)[[1]])
+
+weather_df |> 
+  mutate(
+    lm_fits = map(data, weather_lm)
+  )
+
+```
+
+
+
 
 
